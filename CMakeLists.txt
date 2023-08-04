@@ -23,3 +23,14 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 set(CDI_INCLUDE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/include)
+include_directories(${CDI_INCLUDE_PATH})
+
+add_subdirectory(lib)
+add_subdirectory(third_party)
+
+# if this project is included by other project, don't build test
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME OR BUILD_TESTING)
+    message(STATUS "Building tests")
+    add_subdirectory(test)
+    enable_testing()
+endif()

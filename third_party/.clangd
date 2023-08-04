@@ -1,0 +1,7 @@
+# do not check third party warnings.
+CompileFlags:
+  Remove: [-Wall, -Werror]
+  
+Diagnostics:
+  Suppress: '*'
+    
