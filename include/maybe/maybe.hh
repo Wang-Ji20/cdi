@@ -268,7 +268,7 @@ static_assert(IsFunctor<cdi::maybe::Maybe>, "maybe is a functor");
 
 template <> struct functional::Monad<cdi::maybe::Maybe> {
   template <typename Func, typename T>
-  static auto bind(Func bindFunc, cdi::maybe::Maybe<T> maybe)
+  static auto bind(cdi::maybe::Maybe<T> maybe, Func &&bindFunc)
       -> cdi::maybe::Maybe<T> {
     if (maybe) {
       return bindFunc(maybe.value());

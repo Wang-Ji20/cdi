@@ -71,7 +71,7 @@ template <template <typename> class M,
           typename A,
           typename F,
           typename = std::enable_if_t<cdi::functional::IsMonad<M>>>
-auto operator>>=(const M<A> &monad, F &&func) {
+auto operator>=(const M<A> &monad, F &&func) {
   return cdi::functional::bind(monad, std::forward<F>(func));
 }
 
