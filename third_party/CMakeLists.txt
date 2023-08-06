@@ -11,7 +11,7 @@ foreach(submodule IN LISTS DEPS_SUBMODULES)
     if(SUBMOD_CONTENT_LEN EQUAL 0)
         message(
             FATAL_ERROR "Error: the submodule ${submodule} is empty.  You may \
-            need to install git and run: 'git submodule update' to remedy this."
+            need to install git and run: 'git submodule update --init' to remedy this."
         )
     endif()
 endforeach()

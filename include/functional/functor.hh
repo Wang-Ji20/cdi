@@ -14,6 +14,7 @@
 #ifndef CDI_FUNCTIONAL_FUNCTOR_HH
 #define CDI_FUNCTIONAL_FUNCTOR_HH
 
+#include <type_traits>
 #include <utility>
 
 namespace cdi::functional {
@@ -57,14 +58,13 @@ struct IsFunctorT : std::false_type {};
 struct dummy1 {};
 struct dummy2 {};
 
-template <template <typename> class T>
-struct IsFunctorT<
-    T,
-    std::enable_if_t<std::is_same<T<dummy2>,
-                                  decltype(Functor<T>::fmap(
-                                      std::declval<dummy2(dummy1)>(),
-                                      std::declval<T<dummy1>>()))>::value>>
-    : std::true_type {};
+template <template <typename> class T> struct IsFunctorT<T> : std::true_type {
+  static_assert(std::is_same<T<dummy2>,
+                             decltype(Functor<T>::fmap(
+                                 std::declval<dummy2(dummy1)>(),
+                                 std::declval<T<dummy1>>()))>::value,
+                "Functor::fmap does not have the correct type");
+};
 } // namespace detail
 
 /*!
@@ -85,7 +85,7 @@ template <template <typename> class F,
           typename A,
           typename Fun,
           typename = std::enable_if_t<IsFunctor<F>>>
-auto fmap(Fun &&fun, const F<A> &functor) -> F<std::result_of_t<Fun(A)>> {
+auto fmap(Fun &&fun, const F<A> &functor) -> F<std::invoke_result<Fun, A>> {
   return Functor<F>::fmap(std::forward<Fun>(fun), functor);
 }
 
@@ -100,7 +100,7 @@ template <typename A> struct NullFunctor {};
 template <> struct Functor<Test::NullFunctor> {
   template <typename F, typename A>
   static auto fmap(F /*unused*/, Test::NullFunctor<A> /*unused*/)
-      -> Test::NullFunctor<std::result_of_t<F(A)>> {
+      -> Test::NullFunctor<std::invoke_result_t<F, A>> {
     return {};
   }
 };

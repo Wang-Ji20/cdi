@@ -16,6 +16,7 @@
 
 #include "functor.hh"
 #include "void_t.hh"
+#include <type_traits>
 
 namespace cdi::functional {
 
@@ -56,7 +57,7 @@ template <typename F,
           class M,
           typename A,
           typename = std::enable_if_t<IsMonad<M>>>
-auto bind(const M<A> &monad, F &&func) -> std::result_of_t<F(A)> {
+auto bind(const M<A> &monad, F &&func) -> std::invoke_result_t<F, A> {
   return Monad<M>::bind(monad, std::forward<F>(func));
 }
 

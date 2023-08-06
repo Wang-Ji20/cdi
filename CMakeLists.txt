@@ -1,5 +1,13 @@
 cmake_minimum_required(VERSION 3.11)
 
+# windows
+if(WIN32)
+    cmake_policy(SET CMP0091 NEW)
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+    message(STATUS "Using MSVC_RUNTIME_LIBRARY: ${CMAKE_MSVC_RUNTIME_LIBRARY}")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -MT")
+endif()
+
 project(cdi)
 
 if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
