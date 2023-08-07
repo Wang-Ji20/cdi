@@ -9,7 +9,7 @@
 
 #include "constructor/maybe.hh"
 
-namespace cdi::maybe {
+namespace cdi::constructor {
 
 
 

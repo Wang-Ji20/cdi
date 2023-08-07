@@ -17,11 +17,7 @@
 #include <optional>
 #include <type_traits>
 
-struct MAYBE_Construct_from_invoke_result_tag {
-  explicit MAYBE_Construct_from_invoke_result_tag() = default;
-};
-
-namespace cdi::maybe {
+namespace cdi::constructor {
 
 // NOLINTBEGIN(bugprone-reserved-identifier)
 template <typename T> class Maybe;
@@ -45,21 +41,25 @@ template <class _Tp> struct __is_maybe<Maybe<_Tp>> : std::true_type {};
 /// bind None _ = None
 ///
 template <typename T> class Maybe : public std::optional<T> {
+  struct MAYBE_Construct_from_invoke_result_tag {
+    explicit MAYBE_Construct_from_invoke_result_tag() = default;
+  };
+
 public:
   using value_type = T;
   using original = std::optional<T>;
   using original::optional;
   using None = std::nullopt_t;
 
-  /// TODO: Constructor & destructor
-  template <class Fn, class Ux>
-  constexpr Maybe(MAYBE_Construct_from_invoke_result_tag Tag,
-                  Fn &&Func,
-                  Ux &&Arg) noexcept(std::
-                                         is_nothrow_constructible_v<
-                                             value_type,
-                                             std::invoke_result_t<Fn, Ux>>)
-      : original(Tag, std::forward<Fn>(Func), std::forward<Ux>(Arg)) {}
+  template <class Fn, class... Ux>
+  constexpr Maybe(
+      MAYBE_Construct_from_invoke_result_tag Tag,
+      Fn &&Func,
+      Ux &&...Arg) noexcept(std::
+                                is_nothrow_constructible_v<
+                                    value_type,
+                                    std::invoke_result_t<Fn, Ux...>>)
+      : original(std::invoke(Func, std::forward(Arg...))) {}
 
   ///
   /// support of monadic operations. modified from libc++
@@ -240,41 +240,35 @@ public:
   // NOLINTEND(bugprone-reserved-identifier)
 };
 
-} // namespace cdi::maybe
+} // namespace cdi::constructor
 
 namespace cdi::functional {
 
 // bind, pure & fmap
-template <> struct functional::Functor<cdi::maybe::Maybe> {
+template <> struct functional::Functor<cdi::constructor::Maybe> {
   template <typename Func, typename T>
-  static auto fmap(Func &&mapFunc, const cdi::maybe::Maybe<T> &maybe)
-      -> cdi::maybe::Maybe<std::invoke_result_t<Func, T>> {
-    if (maybe) {
-      return cdi::maybe::Maybe<T>(mapFunc(maybe.value()));
-    }
-    return cdi::maybe::Maybe<T>();
+  static auto fmap(Func &&mapFunc, const cdi::constructor::Maybe<T> &maybe)
+      -> cdi::constructor::Maybe<std::invoke_result_t<Func, T>> {
+    return maybe.transform(mapFunc);
   }
 };
 
-static_assert(IsFunctor<cdi::maybe::Maybe>, "maybe is a functor");
+static_assert(IsFunctor<cdi::constructor::Maybe>, "maybe is not a functor");
 
-template <> struct functional::Monad<cdi::maybe::Maybe> {
+template <> struct functional::Monad<cdi::constructor::Maybe> {
   template <typename Func, typename T>
-  static auto bind(cdi::maybe::Maybe<T> maybe, Func &&bindFunc)
-      -> cdi::maybe::Maybe<T> {
-    if (maybe) {
-      return bindFunc(maybe.value());
-    }
-    return cdi::maybe::Maybe<T>();
+  static auto bind(cdi::constructor::Maybe<T> maybe, Func &&bindFunc)
+      -> cdi::constructor::Maybe<T> {
+    return maybe.and_then(bindFunc);
   }
 
   template <typename Func, typename T>
-  static auto pure(T value) -> cdi::maybe::Maybe<T> {
-    return cdi::maybe::Maybe<T>(value);
+  static auto pure(T value) -> cdi::constructor::Maybe<T> {
+    return cdi::constructor::Maybe<T>(value);
   }
 };
 
-static_assert(IsMonad<cdi::maybe::Maybe>, "maybe is a monad");
+static_assert(IsMonad<cdi::constructor::Maybe>, "maybe is not a monad");
 
 } // namespace cdi::functional
 #endif // CDI_CONSTRUCTOR_MAYBE_HH

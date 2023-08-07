@@ -11,7 +11,7 @@
 #include "gtest/gtest.h"
 
 TEST(ConstructorTest, MonadTest) {
-  using namespace cdi::maybe;
+  using namespace cdi::constructor;
   auto f = [](int x) { return Maybe<int>(x + 1); };
   auto g = [](int x) { return Maybe<int>(x + 2); };
   auto h = [](int x) { return Maybe<int>(x + 3); };
