@@ -1,4 +1,5 @@
 add_subdirectory(constructor)
+add_subdirectory(debugging)
 
 add_library(cdi STATIC ${ALL_OBJECT_FILES})
 
