@@ -61,6 +61,15 @@ auto bind(const M<A> &monad, F &&func) -> std::invoke_result_t<F, A> {
   return Monad<M>::bind(monad, std::forward<F>(func));
 }
 
+template <typename F,
+          template <typename>
+          class M,
+          typename A,
+          typename = std::enable_if_t<IsMonad<M>>>
+auto bind(const M<A> &&monad, F &&func) -> std::invoke_result_t<F, A> {
+  return Monad<M>::bind(std::move(monad), std::forward<F>(func));
+}
+
 } // namespace cdi::functional
 
 /*!
@@ -74,6 +83,22 @@ template <template <typename> class M,
           typename = std::enable_if_t<cdi::functional::IsMonad<M>>>
 auto operator>=(const M<A> &monad, F &&func) {
   return cdi::functional::bind(monad, std::forward<F>(func));
+}
+
+template <template <typename> class M,
+          typename A,
+          typename F,
+          typename = std::enable_if_t<cdi::functional::IsMonad<M>>>
+auto operator>=(const M<A> &&monad, F &&func) {
+  return cdi::functional::bind(std::move(monad), std::forward<F>(func));
+}
+
+template <template <typename> class M,
+          typename A,
+          typename F,
+          typename = std::enable_if_t<cdi::functional::IsMonad<M>>>
+auto operator>=(M<A> &&monad, F &&func) {
+  return cdi::functional::bind(std::move(monad), std::forward<F>(func));
 }
 
 /*!

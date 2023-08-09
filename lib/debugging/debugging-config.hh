@@ -1,7 +1,7 @@
 //===------------------------------------------===
 // cdi 2023
 //
-// Identification: lib/debugging/tracer-config.hh
+// Identification: lib/debugging/debugging-config.hh
 //
 // Author: Ji Wang <jiwangcdi@gmail.com>
 //
@@ -24,6 +24,23 @@
 
 // linux. TODO
 
+#endif // defined(__APPLE__)
+
+//===------------------------------------------------------------------------===
+// choose symbolize implementation based on platform
+//===------------------------------------------------------------------------===
+
+// apple
+#if defined(__APPLE__)
+#define CDI_SYMBOLIZE_INCLUDE "symbolize-darwin.hh"
+
+// windows
+#elif defined(_WIN32) || defined(__CYGWIN__)
+#define CDI_SYMBOLIZE_INCLUDE "symbolize-win32.hh"
+
+// linux
+#elif defined(__linux__)
+#define CDI_SYMBOLIZE_INCLUDE "symbolize-linux.hh"
 #endif // defined(__APPLE__)
 
 #endif // CDI_DEBUGGING_TRACER_CONFIG_HH

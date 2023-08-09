@@ -12,7 +12,7 @@
 #include <atomic>
 
 // internal headers
-#include "tracer-config.hh"
+#include "debugging-config.hh"
 #ifdef CDI_STACKUNWIND_INCLUDE
 #include CDI_STACKUNWIND_INCLUDE
 #else
@@ -21,12 +21,12 @@
 
 namespace cdi::debugging {
 
-[[gnu::always_inline]] inline auto GetStackFrame(void **&frameResult,
+auto GetStackFrame(void **&frameResult,
                                                  int *&frameSizes,
                                                  int maxDepth,
                                                  int skipFrames) noexcept
     -> int {
-  return detail::UnwindDefaultImpl<true, false>(
+  return detail::UnwindDefaultImpl(
       frameResult, frameSizes, maxDepth, skipFrames + 1, nullptr, nullptr);
 }
 

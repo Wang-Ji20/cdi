@@ -19,6 +19,9 @@
 
 namespace cdi::constructor {
 
+using None = std::nullopt_t;
+constexpr static None none = std::nullopt;
+
 // NOLINTBEGIN(bugprone-reserved-identifier)
 template <typename T> class Maybe;
 template <class _Tp> struct __is_maybe : std::false_type {};
@@ -49,7 +52,6 @@ public:
   using value_type = T;
   using original = std::optional<T>;
   using original::optional;
-  using None = std::nullopt_t;
 
   template <class Fn, class... Ux>
   constexpr Maybe(
@@ -257,14 +259,26 @@ static_assert(IsFunctor<cdi::constructor::Maybe>, "maybe is not a functor");
 
 template <> struct functional::Monad<cdi::constructor::Maybe> {
   template <typename Func, typename T>
+  static auto bind(cdi::constructor::Maybe<T> &&maybe, Func &&bindFunc)
+      -> std::invoke_result_t<Func, T> {
+    return std::move(maybe.and_then(bindFunc));
+  }
+
+  template <typename Func, typename T>
+  static auto bind(cdi::constructor::Maybe<T> &maybe, Func &&bindFunc)
+      -> std::invoke_result_t<Func, T> {
+    return std::move(maybe.and_then(bindFunc));
+  }
+
+  template <typename Func, typename T>
   static auto bind(cdi::constructor::Maybe<T> maybe, Func &&bindFunc)
-      -> cdi::constructor::Maybe<T> {
-    return maybe.and_then(bindFunc);
+      -> std::invoke_result_t<Func, T> {
+    return std::move(maybe.and_then(bindFunc));
   }
 
   template <typename Func, typename T>
   static auto pure(T value) -> cdi::constructor::Maybe<T> {
-    return cdi::constructor::Maybe<T>(value);
+    return std::move(cdi::constructor::Maybe<T>(value));
   }
 };
 

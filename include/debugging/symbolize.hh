@@ -11,16 +11,16 @@
 #define CDI_DEBUGGING_SYMBOLIZE_HH
 
 #include "port/port.hh"
+#include <string>
 
 namespace cdi::debugging {
 
 /// @brief Translate Program Counter to symbol names
-/// @param programCounter The program counter
-/// @param[out] out The output buffer
-/// @param outSize The size of output buffer
+/// @param programCounter The program counter, nonnull
+/// @param[out] output The output buffer nonnull
 /// @return Whether the symbolization is successful
-auto Symbolize(const void *programCounter, char *out, int outSize) noexcept
-    -> bool;
+auto
+Symbolize(void *&programCounter, std::string &output) noexcept -> bool;
 
 } // namespace cdi::debugging
 
