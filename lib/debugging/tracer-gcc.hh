@@ -10,7 +10,9 @@
 #ifndef CDI_DEBUGGING_TRACER_GCC_HH
 #define CDI_DEBUGGING_TRACER_GCC_HH
 
+#include "constructor/maybe.hh"
 #include "container/array.hh"
+#include "control/finally.hh"
 #include "debugging/tracer.hh"
 #include <atomic>
 #include <execinfo.h>
@@ -64,18 +66,54 @@ static auto UnwindDefaultImpl(void **&result,
     result[i] = stack[i + skip_count];
   }
 
-  // cannot find frame size now
-  std::memset(sizes, 0, sizeof(*sizes) * resultCount);
-  if (min_dropped_frames != nullptr) {
-    if (size - skip_count - max_depth > 0) {
-      *min_dropped_frames = size - skip_count - max_depth;
-    } else {
-      *min_dropped_frames = 0;
-    }
-  }
   --recursive;
   return resultCount;
 }
+
+[[gnu::always_inline]] inline static auto InRecursionOrForbidTrace() -> bool {
+  return recursive != 0 || noStackTrace.load(std::memory_order_relaxed);
+}
+
+[[gnu::always_inline]] inline static auto
+findFirstEligibleFrame(UnwindOptions opt, int backtraceResult) -> int {
+  return opt.skipFrames + 1;
+}
+
+static const int kStackLength = 64;
+
+[[gnu::always_inline]] inline static auto
+AdjustUnwindOpt(UnwindOptions opt, int backtraceResult) -> UnwindOptions {
+  opt.skipFrames = findFirstEligibleFrame(opt, backtraceResult);
+  auto maxDepth = opt.maxDepth - opt.skipFrames;
+  opt.maxDepth = std::max(0, maxDepth);
+  opt.maxDepth = std::min(opt.maxDepth, kStackLength);
+  return opt;
+}
+
+[[gnu::always_inline]] inline static auto
+UnwindWithoutRecursion(UnwindOptions opt) -> vector<StackFrame> {
+  array<void *, kStackLength> stack;
+  int size = backtrace(stack.data(), kStackLength);
+  opt = AdjustUnwindOpt(opt, size);
+  vector<StackFrame> result;
+  result.reserve(opt.maxDepth);
+  for (int i = 0; i < opt.maxDepth; i++) {
+    result.push_back({stack[opt.skipFrames + i], 0});
+  }
+  return result;
+}
+
+static auto
+GetStackFrame2(UnwindOptions opt)
+    -> vector<StackFrame> {
+  if (InRecursionOrForbidTrace()) {
+    return {};
+  }
+  ++recursive;
+  auto outRecursion = control::finally([]() { --recursive; });
+  return UnwindWithoutRecursion(opt);
+}
+
 
 }; // namespace cdi::debugging::detail
 

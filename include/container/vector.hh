@@ -21,7 +21,8 @@
 // #include "common/logger.hh"
 #include <vector>
 
-namespace cdi::container {
+namespace cdi {
+namespace container {
 
 template <typename Tp> class vector : public std::vector<Tp> {
   using original = std::vector<Tp, std::allocator<Tp>>;
@@ -79,6 +80,10 @@ private:
   }
 };
 
-} // namespace cdi::container
+} // namespace container
+
+using container::vector;
+
+} // namespace cdi
 
 #endif // CDI_CONTAINER_VECTOR_HH

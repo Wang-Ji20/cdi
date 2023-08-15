@@ -10,6 +10,8 @@
 #ifndef CDI_DEBUGGING_TRACER_HH
 #define CDI_DEBUGGING_TRACER_HH
 
+#include "container/vector.hh"
+
 namespace cdi::debugging {
 
 /// @brief Get the stack frame
@@ -26,6 +28,20 @@ GetStackFrame(void **&frameResult,
               int *&frameSizes,
               int maxDepth,
               int skipFrames) noexcept -> int;
+
+struct StackFrame {
+  void *frame;
+  int size;
+};
+
+struct UnwindOptions {
+  int maxDepth;
+  int skipFrames;
+};
+
+[[nodiscard("you may want to know how many stack traces to print. please check "
+            "that.")]] [[maybe_unused]] extern auto
+GetStackFrame2(UnwindOptions opt) noexcept -> vector<StackFrame>;
 
 } // namespace cdi::debugging
 

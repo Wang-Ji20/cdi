@@ -12,7 +12,8 @@
 
 #include <array>
 
-namespace cdi::container {
+namespace cdi {
+namespace container {
 
 template <class T, std::size_t N> using array = std::array<T, N>;
 
@@ -47,6 +48,8 @@ constexpr std::array<std::remove_cv_t<T>, N> to_array(T (&&a)[N]) {
   return detail::to_array_impl(std::move(a), std::make_index_sequence<N>{});
 }
 
-} // namespace cdi::container
+} // namespace container
+using cdi::container::array;
+} // namespace cdi
 
 #endif // CDI_CONTAINER_ARRAY_HH
