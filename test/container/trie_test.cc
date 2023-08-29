@@ -13,6 +13,7 @@
 
 using namespace cdi::container;
 
+// NOLINTNEXTLINE
 TEST(TrieTest, Insert) {
   Trie trie;
   int value = 1;
@@ -24,6 +25,7 @@ TEST(TrieTest, Insert) {
   trie.Print(std::cerr);
 }
 
+// NOLINTNEXTLINE
 TEST(TrieTest, Remove) {
   Trie trie;
   int value = 1;
@@ -41,6 +43,7 @@ TEST(TrieTest, Remove) {
   trie.Print(std::cerr);
 }
 
+// NOLINTNEXTLINE
 TEST(TrieTest, Lookup) {
   Trie trie;
   int value = 1;

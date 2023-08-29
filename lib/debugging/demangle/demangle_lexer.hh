@@ -18,17 +18,25 @@ class State {
 public:
   State(const std::string_view &str) : pos(0), str(str) {}
 
-  [[nodiscard]] auto Peek(std::size_t n = 0) const -> char {
+  [[nodiscard]] auto
+  Peek(std::size_t n = 0) const -> char {
     return pos + n < str.size() ? str[pos + n] : '\0';
   }
 
-  [[nodiscard]] auto Next() -> char {
+  [[nodiscard]] auto
+  Next() -> char {
     return pos < str.size() ? str[pos++] : '\0';
   }
 
-  [[nodiscard]] auto eof() const -> bool { return pos >= str.size(); }
+  [[nodiscard]] auto
+  eof() const -> bool {
+    return pos >= str.size();
+  }
 
-  [[nodiscard]] auto get_pos() const -> std::size_t { return pos; }
+  [[nodiscard]] auto
+  get_pos() const -> std::size_t {
+    return pos;
+  }
 
 private:
   size_t pos;

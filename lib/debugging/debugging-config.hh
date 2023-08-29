@@ -14,33 +14,28 @@
 // choose stackunwind implementation based on platform
 //===------------------------------------------------------------------------===
 
-// apple
-#if defined(__APPLE__)
-#define CDI_STACKUNWIND_INCLUDE "tracer-gcc.hh"
+// libunwind
+#if defined(__APPLE__) || defined(__linux__)
+#define CDI_STACKUNWIND_INCLUDE "tracer-libunwind.hh"
 
 // windows
 #elif defined(_WIN32) || defined(__CYGWIN__)
 #define CDI_STACKUNWIND_INCLUDE "tracer-win32.hh"
 
-// linux. TODO
-
-#endif // defined(__APPLE__)
+#endif // defined(__APPLE__) || defined(__linux__)
 
 //===------------------------------------------------------------------------===
 // choose symbolize implementation based on platform
 //===------------------------------------------------------------------------===
 
-// apple
-#if defined(__APPLE__)
-#define CDI_SYMBOLIZE_INCLUDE "symbolize-darwin.hh"
+// libunwind
+#if defined(__APPLE__) || defined(__linux__)
+#define CDI_SYMBOLIZE_INCLUDE "symbolize-libunwind.hh"
 
 // windows
 #elif defined(_WIN32) || defined(__CYGWIN__)
 #define CDI_SYMBOLIZE_INCLUDE "symbolize-win32.hh"
 
-// linux
-#elif defined(__linux__)
-#define CDI_SYMBOLIZE_INCLUDE "symbolize-linux.hh"
-#endif // defined(__APPLE__)
+#endif // defined(__APPLE__) || defined (__linux__)
 
 #endif // CDI_DEBUGGING_TRACER_CONFIG_HH

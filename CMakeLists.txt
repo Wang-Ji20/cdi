@@ -10,6 +10,8 @@ endif()
 
 project(cdi)
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/build_support/cmake")
+
 if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
   if(NOT DEFINED WITH_IN_SOURCE_BUILD)
     message(FATAL_ERROR
@@ -39,6 +41,8 @@ add_subdirectory(third_party)
 # if this project is included by other project, don't build test
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME OR BUILD_TESTING)
     message(STATUS "Building tests")
+    set(TEST_SOURCES_PATTERN ${PROJECT_SOURCE_DIR}/test/*/*test.cc)
+    include(LCOV)
     add_subdirectory(test)
     enable_testing()
 endif()

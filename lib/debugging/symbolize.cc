@@ -7,9 +7,8 @@
 //
 //===------------------------------------------===
 
-
-#include "debugging-config.hh"
 #include "debugging/symbolize.hh"
+#include "debugging-config.hh"
 
 // internal headers
 #ifdef CDI_SYMBOLIZE_INCLUDE

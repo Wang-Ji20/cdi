@@ -1,14 +1,14 @@
 //===------------------------------------------===
 // cdi 2023
 //
-// Identification: lib/debugging/tracer-gcc.hh
+// Identification: lib/debugging/tracer-libunwind.hh
 //
 // Author: Ji Wang <jiwangcdi@gmail.com>
 //
 //===------------------------------------------===
 
-#ifndef CDI_DEBUGGING_TRACER_GCC_HH
-#define CDI_DEBUGGING_TRACER_GCC_HH
+#ifndef CDI_DEBUGGING_TRACER_LIBUNWIND_HH
+#define CDI_DEBUGGING_TRACER_LIBUNWIND_HH
 
 #include "constructor/maybe.hh"
 #include "container/array.hh"
@@ -35,12 +35,13 @@ static std::atomic<bool> noStackTrace{true};
   return 0;
 }();
 
-static auto UnwindDefaultImpl(void **&result,
-                              int *&sizes,
-                              int max_depth,
-                              int skip_count,
-                              const void *ucp, /* unused, optional */
-                              int *min_dropped_frames /* optional */) -> int {
+[[maybe_unused]] static auto
+UnwindDefaultImpl(void **&result,
+                  int *&sizes,
+                  int max_depth,
+                  int skip_count,
+                  const void *ucp, /* unused, optional */
+                  int *min_dropped_frames /* optional */) -> int {
   if ((recursive != 0) || noStackTrace.load(std::memory_order_relaxed)) {
     return 0;
   }
@@ -70,7 +71,8 @@ static auto UnwindDefaultImpl(void **&result,
   return resultCount;
 }
 
-[[gnu::always_inline]] inline static auto InRecursionOrForbidTrace() -> bool {
+[[gnu::always_inline]] inline static auto
+InRecursionOrForbidTrace() -> bool {
   return recursive != 0 || noStackTrace.load(std::memory_order_relaxed);
 }
 
@@ -103,9 +105,8 @@ UnwindWithoutRecursion(UnwindOptions opt) -> vector<StackFrame> {
   return result;
 }
 
-static auto
-GetStackFrame2(UnwindOptions opt)
-    -> vector<StackFrame> {
+[[maybe_unused]] static auto
+GetStackFrame2(UnwindOptions opt) -> vector<StackFrame> {
   if (InRecursionOrForbidTrace()) {
     return {};
   }
@@ -114,7 +115,6 @@ GetStackFrame2(UnwindOptions opt)
   return UnwindWithoutRecursion(opt);
 }
 
-
 }; // namespace cdi::debugging::detail
 
-#endif // CDI_DEBUGGING_TRACER_GCC_HH
+#endif // CDI_DEBUGGING_TRACER_LIBUNWIND_HH

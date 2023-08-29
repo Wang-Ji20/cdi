@@ -21,11 +21,11 @@
 
 namespace cdi::debugging {
 
-auto GetStackFrame(void **&frameResult,
-                                                 int *&frameSizes,
-                                                 int maxDepth,
-                                                 int skipFrames) noexcept
-    -> int {
+auto
+GetStackFrame(void **&frameResult,
+              int *&frameSizes,
+              int maxDepth,
+              int skipFrames) noexcept -> int {
   return detail::UnwindDefaultImpl(
       frameResult, frameSizes, maxDepth, skipFrames + 1, nullptr, nullptr);
 }

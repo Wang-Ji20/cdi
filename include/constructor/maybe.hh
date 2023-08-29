@@ -15,13 +15,14 @@
 #include "metaprogramming/remove.hh"
 
 #include <optional>
-#include <type_traits>
+#include <functional>
 
 namespace cdi::constructor {
 
 using None = std::nullopt_t;
 constexpr static None none = std::nullopt;
 
+// We want to imitate stdlib style here.
 // NOLINTBEGIN(bugprone-reserved-identifier)
 template <typename T> class Maybe;
 template <class _Tp> struct __is_maybe : std::false_type {};
@@ -65,6 +66,18 @@ public:
 
   ///
   /// support of monadic operations. modified from libc++
+  ///
+  /// Here I explain why there are four version for one function. these four functions
+  /// are actually returning type decltype(auto). the &, const &, &&, const && are
+  /// qualifiers for the *this, not ret type. depending on the status of the current object
+  /// we are calling different versions of them.
+  ///
+  /// &, const & are for lvalues. easy to understand.
+  ///
+  /// but when rvalue is used? like this:
+  ///   a.and_then(f1).and_then(f2);
+  /// after f1 is called, the result is a rvalue. so we need to use && version of
+  /// and_then.
   ///===----------------------------------------------------------------------===//
   ///
   /// Part of the LLVM Project, under the Apache License v2.0 with LLVM
@@ -79,7 +92,7 @@ public:
     using _Up = std::invoke_result_t<_Func, value_type &>;
     static_assert(
         __is_maybe<cdi::metaprogramming::remove_cvref_t<_Up>>::value,
-        "Result of f(value()) must be a specialization of std::optional");
+        "Result of f(value()) must be a specialization of maybe");
     if (*this) {
       return std::invoke(std::forward<_Func>(__f), original::value());
     }
@@ -90,7 +103,7 @@ public:
     using _Up = std::invoke_result_t<_Func, const value_type &>;
     static_assert(
         __is_maybe<cdi::metaprogramming::remove_cvref_t<_Up>>::value,
-        "Result of f(value()) must be a specialization of std::optional");
+        "Result of f(value()) must be a specialization of maybe");
     if (*this) {
       return std::invoke(std::forward<_Func>(__f), original::value());
     }
@@ -101,7 +114,7 @@ public:
     using _Up = std::invoke_result_t<_Func, value_type &&>;
     static_assert(__is_maybe<cdi::metaprogramming::remove_cvref_t<_Up>>::value,
                   "Result of f(std::move(value())) must be a specialization of "
-                  "std::optional");
+                  "maybe");
     if (*this) {
       return std::invoke(std::forward<_Func>(__f),
                          std::move(original::value()));
@@ -113,7 +126,7 @@ public:
     using _Up = std::invoke_result_t<_Func, const value_type &&>;
     static_assert(__is_maybe<cdi::metaprogramming::remove_cvref_t<_Up>>::value,
                   "Result of f(std::move(value())) must be a specialization of "
-                  "std::optional");
+                  "maybe");
     if (*this) {
       return std::invoke(std::forward<_Func>(__f),
                          std::move(original::value()));

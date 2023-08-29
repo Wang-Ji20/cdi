@@ -1,3 +1,5 @@
 BinPackArguments: false
 BinPackParameters: false
 ConstructorInitializerAllOnOneLineOrOnePerLine: true
+AlwaysBreakAfterReturnType: All
+AlwaysBreakTemplateDeclarations: Yes

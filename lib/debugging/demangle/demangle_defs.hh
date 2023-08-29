@@ -78,7 +78,6 @@ static const auto kOperatorList = container::to_array<AbbrevPair>({
     {"qu", "?", 3},
     {"st", "sizeof", 0}, // Special syntax
     {"sz", "sizeof", 1}, // Not a real operator name, but used in expressions.
-    {nullptr, nullptr, 0},
 });
 
 // List of builtin types from Itanium C++ ABI.
@@ -117,7 +116,6 @@ static const auto kBuiltinTypeList = container::to_array<AbbrevPair>({
     {"Du", "char8_t", 0},
     {"Ds", "char16_t", 0},
     {"Dh", "float16", 0}, // IEEE 754r half-precision float (16 bits)
-    {nullptr, nullptr, 0},
 });
 
 // List of substitutions Itanium C++ ABI.
@@ -133,7 +131,6 @@ static const auto kSubstitutionList = container::to_array<AbbrevPair>({
     {"So", "ostream", 0},
     // std::basic_iostream<char, std::char_traits<char> >
     {"Sd", "iostream", 0},
-    {nullptr, nullptr, 0},
 });
 
 } // namespace cdi::debugging::detail
