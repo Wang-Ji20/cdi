@@ -11,6 +11,7 @@
 #include "constructor/tracker.hh"
 #include "gtest/gtest.h"
 
+
 // NOLINTNEXTLINE
 TEST(ConstructorTest, MonadTest) {
   using namespace cdi::constructor;

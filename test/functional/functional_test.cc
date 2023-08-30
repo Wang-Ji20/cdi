@@ -16,7 +16,7 @@
 #include "gtest/gtest.h"
 
 // NOLINTNEXTLINE
-TEST(FunctionalTest, Composition) {
+TEST(CompositionTest, CompositeThree) {
   auto funcF = [](int input) { return input + 1; };
   auto funcG = [](int input) { return input * 2; };
   auto funcH = [](int input) { return input - 1; };
@@ -26,6 +26,41 @@ TEST(FunctionalTest, Composition) {
 
   EXPECT_EQ(fog(1), funcF(funcG(1)));
   EXPECT_EQ(goh(1), funcG(funcH(1)));
+}
+
+// NOLINTNEXTLINE
+TEST(CompositionTest, CompositeOne) {
+  auto funF = [](int input) { return input + 1; };
+  auto funG = cdi::functional::Compose(funF);
+  EXPECT_EQ(funG(1), 2);
+}
+
+// NOLINTNEXTLINE
+TEST(CompositionTest, CompositeOperator) {
+  auto funcF = [](int input) { return input + 1; };
+  auto funcG = [](int input) { return input * 2; };
+  auto funcH = [](int input) { return input - 1; };
+
+  std::function<int(int)> fog = funcF <<= funcG;
+  auto goh = funcG <<= funcH;
+
+  EXPECT_EQ(fog(1), funcF(funcG(1)));
+  EXPECT_EQ(goh(1), funcG(funcH(1)));
+}
+
+// NOLINTNEXTLINE
+TEST(CompositionTest, OpMixLRValue) {
+  auto funcG = [](int input) { return input * 2; };
+
+  auto fog = [](int input) { return input + 1; } <<= funcG;
+  auto goh = funcG <<= [](int input) { return input - 1; };
+  auto purerv =
+      [](int input) { return input + 1; }
+      <<= [](int input) { return input * 2; };
+
+  EXPECT_EQ(fog(1), 3);
+  EXPECT_EQ(goh(1), 0);
+  EXPECT_EQ(purerv(1), 3);
 }
 
 // NOLINTNEXTLINE
@@ -54,7 +89,6 @@ TEST(FunctionalTest, DISABLED_Memoize) {
   cdi::functional::YCombinator<int, int> memoized_fib = fibFunc;
   const std::function<int(int)> memoFib =
       cdi::functional::Memoize<int, int>{memoized_fib};
-
 
   // start timer
   auto start = std::chrono::high_resolution_clock::now();
