@@ -11,9 +11,47 @@
 #include "constructor/tracker.hh"
 #include "gtest/gtest.h"
 
+// NOLINTNEXTLINE
+TEST(MaybeTest, LvalueLfunctionMonadTest) {
+  using namespace cdi::constructor;
+  auto fadd1 = [](int input) { return Maybe<int>(input + 1); };
+  auto maybe1 = Maybe<int>(1);
+  auto result2 = maybe1 >= fadd1;
+  ASSERT_EQ(result2.value_or(0), 2);
+}
 
 // NOLINTNEXTLINE
-TEST(ConstructorTest, MonadTest) {
+TEST(MaybeTest, LvalueRfunctionMonadTest) {
+  using namespace cdi::constructor;
+  auto maybe1 = Maybe<int>(1);
+  auto result2 = maybe1 >= [](int input) { return Maybe<int>(input + 1); };
+  ASSERT_EQ(result2.value_or(0), 2);
+}
+
+// NOLINTNEXTLINE
+TEST(MaybeTest, RvalueLfunctionMonadTest) {
+  using namespace cdi::constructor;
+  auto fadd1 = [](int input) { return Maybe<int>(input + 1); };
+  auto result2 = Maybe<int>(1) >= fadd1;
+  ASSERT_EQ(result2.value_or(0), 2);
+}
+
+// NOLINTNEXTLINE
+TEST(MaybeTest, RvalueRfunctionMonadTest) {
+  using namespace cdi::constructor;
+  auto result2 = Maybe<int>(1) >= [](int input) { return Maybe<int>(input + 1); };
+  ASSERT_EQ(result2.value_or(0), 2);
+}
+
+// NOLINTNEXTLINE
+TEST(MaybeTest, NoneTest) {
+  using namespace cdi::constructor;
+  auto result = Maybe<int>{none} >= [](int input) { return Maybe<int>(input + 1); };
+  ASSERT_EQ(result, none);
+}
+
+// NOLINTNEXTLINE
+TEST(MaybeTest, MonadTest) {
   using namespace cdi::constructor;
   auto fadd1 = [](int input) { return Maybe<int>(input + 1); };
   auto fadd2 = [](int input) { return Maybe<int>(input + 2); };

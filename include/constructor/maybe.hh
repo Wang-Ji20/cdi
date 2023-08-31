@@ -331,7 +331,7 @@ struct functional::Monad<cdi::constructor::Maybe> {
   static auto
   bind(cdi::constructor::Maybe<T> &&maybe, Func &&bindFunc)
       -> std::invoke_result_t<Func, T> {
-    return std::forward(maybe).and_then(bindFunc);
+    return std::move(maybe).and_then(bindFunc);
   }
 
   template <typename Func, typename T>

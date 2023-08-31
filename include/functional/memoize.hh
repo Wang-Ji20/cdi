@@ -19,9 +19,9 @@
 
 namespace std {
 namespace {
- constexpr uint32_t MagicNumber1 = 0x9e3779b9;
- constexpr uint32_t MagicNumber2 = 6;
- constexpr uint32_t MagicNumber3 = 2;
+constexpr uint32_t MagicNumber1 = 0x9e3779b9;
+constexpr uint32_t MagicNumber2 = 6;
+constexpr uint32_t MagicNumber3 = 2;
 
 // Code from boost
 // Reciprocal of the golden ratio helps spread entropy
@@ -68,24 +68,44 @@ struct hash<std::tuple<TT...>> {
 
 namespace cdi::functional {
 
-template <typename Ret, typename... Args>
-struct Memoize {
-  std::function<Ret(Args...)> func;
-  mutable std::unordered_map<std::tuple<Args...>, Ret> cache;
+// https://stackoverflow.com/questions/17805969/writing-universal-memoization-function-in-c11
+
+template <typename OFunc, typename YFunc = OFunc>
+struct Memoize;
+
+// this template specialization is used to unpack OFunc to Ret, ...Args
+template <typename Ret, typename... Args, class BaseFunc>
+// direction is from the next line to above line. It unpack OFunc, and
+// infer Ret, Args...
+struct Memoize<Ret(Args...), BaseFunc> {
+  BaseFunc func_;
+  mutable std::unordered_map<std::tuple<std::decay_t<Args>...>, Ret> cache;
+
+  template <typename U>
+  Memoize(U &&func) : func_(std::forward<U>(func)) {} // NOLINT
 
   template <typename... Ts>
   auto
   operator()(Ts &&...args) const -> Ret {
-    auto key = std::make_tuple(std::forward<Ts>(args)...);
+    auto key = std::tie(args...);
     auto iter = cache.find(key);
     if (iter != cache.end()) {
       return iter->second;
     }
-    auto result = func(std::forward<Ts>(args)...);
-    cache[key] = result;
+    auto result = func_(*this, std::forward<Ts>(args)...);
+    cache.emplace(std::move(key), result);
     return result;
   }
 };
+
+// O is passed to the template in line 77
+template <typename O, typename F>
+auto
+make_Memoize(F &&func) -> Memoize<O, std::decay_t<F>> {
+  return std::forward<F>(func);
+}
+
+// Flow: O -> OFunc -> Ret, Args...
 
 } // namespace cdi::functional
 

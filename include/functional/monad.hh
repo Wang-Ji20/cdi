@@ -85,7 +85,7 @@ template <typename F,
           class M,
           typename A,
           typename = std::enable_if_t<IsMonad<M>>>
-auto bind(const M<A> &&monad, F &&func) -> std::invoke_result_t<F, A> {
+auto bind(M<A> &&monad, F &&func) -> std::invoke_result_t<F, A> {
   return Monad<M>::bind(std::move(monad), std::forward<F>(func));
 }
 
