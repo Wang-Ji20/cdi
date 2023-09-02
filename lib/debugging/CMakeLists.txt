@@ -2,7 +2,6 @@ add_library(
   cdi_debugging
   OBJECT
   tracer.cc
-  symbolize.cc
 )
 
 set(

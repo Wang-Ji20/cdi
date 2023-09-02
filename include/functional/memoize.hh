@@ -11,8 +11,6 @@
 #ifndef CDI_FUNCTIONAL_MEMOIZE_HH
 #define CDI_FUNCTIONAL_MEMOIZE_HH
 
-#include "y_combinator.hh"
-
 #include <cstdint>
 #include <functional>
 #include <unordered_map>
