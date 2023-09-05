@@ -21,16 +21,6 @@ auto functionB(int args) -> int { return args + 1 + functionA(); }
 auto functionC(int args) -> int { return functionB(args) + 1; }
 
 void functionD() {
-  using namespace std;
-  using namespace cdi::debugging;
-  void **fps = new void *[1024]();
-  int *sizes = new int[1024];
-  auto fms = cdi::debugging::GetStackFrame(fps, sizes, 64, 0);
-  std::cerr << fms << std::endl;
-  string res;
-  if (Symbolize(fps[0], res)) {
-    cerr << res << endl;
-  }
 }
 
 TEST(SymbolizeTest, SimpleTest) { functionD(); }
